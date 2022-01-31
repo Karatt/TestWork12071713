@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Redirect;
+use App\Http\Controllers\PostController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,8 +19,20 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
+Route::middleware('auth:sanctum')->group( function () {
+    Route::get('/dashboard', function() {
+        return view('dashboard');
+    })->name('dashboard');
+
+    Route::resource('posts', PostController::class)->only(['edit', 'create', 'store', 'update', 'destroy']);
+});
+
+Route::resource('posts', PostController::class)
+    ->only(['index', 'show'])
+    ->names(['index' => 'posts'])
+    ->missing(function () {
+        return Redirect::route('posts');
+    });
+
 
 require __DIR__.'/auth.php';
